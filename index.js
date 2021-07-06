@@ -1,4 +1,4 @@
-//Current Variables
+//Homepage, API, and Main Variables
 const searchBtn = document.querySelector(".search__button");
 const searchbox = document.querySelector("#search__bar");
 
@@ -59,33 +59,14 @@ window.addEventListener("load", () => {
 
 //Current Forecast
 function resetQuery(e) {
-  // today =
-  //   cityText.innerText =
-  //   temp.innerHTML =
-  //   feelsLike.innerHTML =
-  //   curHiTemp.innerHTML =
-  //   curLowTemp.innerHTML =
-  //   humidity.innerHTML =
-  //     "";
-  // background.classList.remove("night-mode");
   weatherpage.classList.add("weather__hidden");
   weatherpage.style.transition = "all 0.5s ease-in";
-  // weatherpage.style.opacity = "0";
   setQuery();
 }
 
 function setQuery(e) {
   getWeatherData(searchbox.value);
-  // getFiveDay(searchbox.value);
   weatherpage.classList.remove("weather__hidden");
-
-  // weatherpage.style.transition = "all 0.5s ease-in";
-  // weatherpage.classList.add("weather__uncover");
-  // weatherpage.style.opacity = "100";
-  // weatherpage.addEventListener("load", fadeIn);
-  // function fadeIn() {
-  //   weatherpage.style.transition = "all 0.5s ease-in";
-  // }
 }
 
 function getWeatherData(query) {
@@ -95,9 +76,6 @@ function getWeatherData(query) {
     .then((response) => {
       return response.json();
     })
-    // .then((data) => {
-    //   console.log(data);
-    // })
     .then((weatherData) => {
       let dailyForecast = weatherData.list;
       let city_location = weatherData.city.name;
@@ -118,14 +96,17 @@ function currentDateBuilder(d) {
 
 //Display Functions
 function displayResults(city, country, weather, localData) {
+  //Set date
   let today = Date.now();
   console.log(today / 1000);
 
+  //Set location
   let cityText = document.querySelector(".location");
   let cityName = city;
   let countryName = country;
   cityText.innerText = `${cityName}, ${countryName}`;
 
+  //Set current weather conditions
   let temp = document.querySelector(".current__temp");
   temp.innerHTML = `${Math.round(weather[0].main.temp)}&#176`;
 
@@ -141,75 +122,66 @@ function displayResults(city, country, weather, localData) {
   let humidity = document.querySelector(".humidity__percent");
   humidity.innerHTML = `${weather[0].main.humidity}%`;
 
-  //set background and image
+  //Set background and image based on time of day
   const sunrise = localData.sunrise;
-  const sunnyOut = sunrise + 3600;
-  console.log(sunrise);
-  console.log(sunnyOut);
+  const sunnyOut = sunrise + 3600; //add extra time so its a little lighter out when the sun icon is used
+
   const sunset = localData.sunset;
-  const darkOut = sunset + 3600;
-  console.log(sunset);
-  console.log(darkOut);
+  const darkOut = sunset + 3600; //add extra time so its a little darker out when the moon icon is used
+
   let background = document.querySelector(".weather__page");
   let weatherElement = weather[0].weather[0].main;
   let weatherElementLow = weatherElement.toLowerCase();
   let cloudCoverage = weather[0].clouds.all;
-  let weatherIcon = `${weatherElementLow}.SVG`;
+  let weatherIcon = `/Weather_App/${weatherElementLow}.SVG`;
   let currentIcon = document.querySelector(".current__image");
 
-  //background color and image - day vs night
+  //Check if the sun is up or the moon is out and change the current weather icon and background color accordingly
   if (today / 1000 > sunnyOut && today / 1000 < darkOut) {
-    // let weatherIcon = `${weatherElementLow}.SVG`;
     if (weatherElement === "Clouds" && cloudCoverage < 50) {
-      currentIcon.setAttribute("src", "/cloud.SVG");
+      currentIcon.setAttribute("src", "/Weather_App/cloud.SVG");
     } else if (weatherElement === "Clouds" && cloudCoverage > 50) {
-      currentIcon.setAttribute("src", `/${weatherIcon}`);
+      currentIcon.setAttribute("src", `${weatherIcon}`);
     } else {
-      currentIcon.setAttribute("src", `/${weatherIcon}`);
+      currentIcon.setAttribute("src", `${weatherIcon}`);
     }
     background.style.background = `var(--${weatherElementLow}-color)`;
   } else {
-    // let weatherIcon = `${weatherElementLow}.SVG`;
     if (weatherElement === "Clouds" && cloudCoverage < 50) {
-      currentIcon.setAttribute("src", "/cloud-night.SVG");
+      currentIcon.setAttribute("src", "/Weather_App/cloud-night.SVG");
     } else if (weatherElement === "Clouds" && cloudCoverage > 50) {
-      currentIcon.setAttribute("src", `/${weatherIcon}`);
+      currentIcon.setAttribute("src", `${weatherIcon}`);
     } else {
-      currentIcon.setAttribute("src", `/${weatherElementLow}-night.SVG`);
+      currentIcon.setAttribute(
+        "src",
+        `/Weather_App/${weatherElementLow}-night.SVG`
+      );
     }
     background.style.background = `var(--night-color)`;
   }
 
-  // let currentIcon = document.querySelector(".current__image");
-  // if (weatherElement === "Clouds" && cloudCoverage < 50) {
-  //   currentIcon.setAttribute("src", "/cloud.SVG");
-  // } else if (weatherElement === "Clouds" && cloudCoverage > 50) {
-  //   currentIcon.setAttribute("src", `/${weatherIcon}`);
-  // } else {
-  //   currentIcon.setAttribute("src", `/${weatherIcon}`);
-  // }
-
+  //Set 4 Day Forecast
   for (let i = 0; i <= 4; i++) {
     let now = new Date(weather[i].dt * 1000);
     if (i === 0) {
       let curDate = document.querySelector(".date");
       curDate.innerText = currentDateBuilder(now);
     } else {
-      //day names
+      //Day names
       let nextDay = new Date(today);
       nextDay.setDate(nextDay.getDate() + i);
       let name = days[nextDay.getDay()];
       let dayClass = document.querySelector(`.day-${i}`);
       dayClass.innerText = name;
 
-      //icons
+      //Icons
       let weatherElementDay = weather[i].weather[0].main;
       let weatherElementDayLow = weatherElementDay.toLowerCase();
-      let weatherIconDay = `${weatherElementDayLow}.svg`;
+      let weatherIconDay = `/Weather_App/${weatherElementDayLow}.SVG`;
       let fiveDayIcon = document.querySelector(`.icon-${i}`);
-      fiveDayIcon.setAttribute("src", `/${weatherIconDay}`);
+      fiveDayIcon.setAttribute("src", `${weatherIconDay}`);
 
-      //temps
+      //Hi and Lo Temps
       let dayHiTemp = document.querySelector(`.hi-temp-${i}`);
       dayHiTemp.innerHTML = `${Math.round(weather[i].main.temp_max)}&#176`;
       let dayLowTemp = document.querySelector(`.lo-temp-${i}`);
@@ -226,9 +198,10 @@ function displayResults(city, country, weather, localData) {
 // };
 
 //Event Handlers
+searchBtn.addEventListener("click", resetQuery);
 // searchbox.addEventListener("keypress", setQueryKey);
 // searchBtn.addEventListener("click", setQuery);
-searchBtn.addEventListener("click", resetQuery);
+
 //app order of operations
 // 1. Capture value that the user inputs into the search
 // 2. Input location into API and fetch it
